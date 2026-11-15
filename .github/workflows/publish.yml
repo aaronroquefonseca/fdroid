@@ -1,15 +1,16 @@
 name: publish
 
-# Picks up APKs that app release workflows upload to R2 incoming/.
+# App release workflows upload a signed APK to R2 incoming/, then start this
+# with `gh workflow run publish.yml`. One publisher at a time: runs queue.
 on:
-  schedule:
-    - cron: "17 */3 * * *"
   workflow_dispatch:
   push:
     branches: [main]
 
 concurrency:
   group: publish
+  # A queued run publishes everything in incoming/, so GitHub replacing an
+  # older queued run with a newer one loses nothing.
   cancel-in-progress: false
 
 permissions:

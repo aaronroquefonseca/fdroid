@@ -7,17 +7,20 @@ Source for https://f-droid.aaronroque.biz (index at `/repo`).
   screenshots come from R2 `listings/<package>/` (fastlane layout), pushed by the app repo.
 - `site/index.html`: homepage, served at `/repo/index.html`.
 - `publish.sh`: sync R2 → take `incoming/*.apk` → `fdroid update` → sync back to R2.
-- `.github/workflows/publish.yml`: runs `publish.sh` every 3 hours, on push, and on demand.
+- `.github/workflows/publish.yml`: runs `publish.sh` when an app release starts it, on push, and on demand.
 
 ## Add an app
 
 1. Add `metadata/<package>.yml`. In the app repo, keep the listing in
    `fastlane/metadata/android/<locale>/` and sync it to `s3://$R2_BUCKET/listings/<package>/`
-   (see MyWhisperMobile's `fdroid-listing.yml`).
+   (see MyWhisperMobile's `release.yml`).
 2. Give the app repo the `R2_*` secrets and make its release workflow upload the
    **signed** APK with a unique name, e.g.
    `aws s3 cp app.apk s3://$R2_BUCKET/incoming/<package>-<version>.apk --endpoint-url https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com`.
-3. It goes live on the next run, or now with `gh workflow run publish.yml -R aaronroquefonseca/fdroid`.
+3. After the upload, start the publish:
+   `gh workflow run publish.yml -R aaronroquefonseca/fdroid` with `GH_TOKEN` set to the
+   app repo's `FDROID_DISPATCH_TOKEN` secret: a fine-grained token with access to only
+   this repo and **Actions: Read and write**. It can't read code or secrets here.
 
 ## Nightlies
 
