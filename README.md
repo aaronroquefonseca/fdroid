@@ -19,6 +19,13 @@ Source for https://f-droid.aaronroque.biz (index at `/repo`).
    `aws s3 cp app.apk s3://$R2_BUCKET/incoming/<package>-<version>.apk --endpoint-url https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com`.
 3. It goes live on the next run, or now with `gh workflow run publish.yml -R aaronroquefonseca/fdroid`.
 
+## Nightlies
+
+Packages in `NIGHTLY_PACKAGES` (publish.sh) use `versionCode = release * 1000`
+for stable builds and `+ n` for nightlies. Each run sets the newest stable as
+`CurrentVersionCode`, so clients list nightlies as Beta (opt-in per app), and
+deletes nightlies that fdroid moved to `archive/`.
+
 ## Secrets
 
 | Secret | What |

@@ -35,6 +35,25 @@ done
 new=(incoming/*.apk)
 for apk in "${new[@]}"; do cp "$apk" repo/; echo "adding $(basename "$apk")"; done
 
+# Apps that ship nightlies use versionCode = release * 1000 (+ nightly number).
+# The newest stable becomes CurrentVersionCode, so F-Droid clients flag anything
+# above it as Beta (opt-in per app). Archived nightlies are dead weight: drop them.
+NIGHTLY_PACKAGES=(com.mywhisper.mobile)
+trap 'git checkout -q -- metadata/' EXIT # CurrentVersionCode is written per run only
+for pkg in "${NIGHTLY_PACKAGES[@]}"; do
+  stable=0
+  for apk in repo/"${pkg}"_*.apk archive/"${pkg}"_*.apk; do
+    vc=${apk##*_}; vc=${vc%.apk}
+    [[ $vc =~ ^[0-9]+$ ]] || continue
+    if (( vc % 1000 )); then
+      [[ $apk == archive/* ]] && { rm -f "$apk"; echo "pruned $apk"; }
+    elif (( vc > stable )); then
+      stable=$vc
+    fi
+  done
+  if (( stable )); then printf 'CurrentVersionCode: %s\n' "$stable" >> "metadata/$pkg.yml"; fi
+done
+
 fdroid update --rename-apks --pretty
 # Our homepage replaces the one fdroid generates.
 cp site/index.html icon.png repo/
