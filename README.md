@@ -2,18 +2,19 @@
 
 Source for https://f-droid.aaronroque.biz (index at `/repo`).
 
-- `apps.txt`: GitHub repos to pull signed release APKs from.
+- R2 `incoming/`: apps drop signed APKs here; publish moves them into `repo/`.
 - `metadata/<package>.yml` + `metadata/<package>/en-US/`: store listing, icon, screenshots.
 - `site/index.html`: homepage, served at `/repo/index.html`.
-- `publish.sh`: sync R2 → pull new releases → `fdroid update` → sync back to R2.
-- `.github/workflows/publish.yml`: runs `publish.sh` daily, on push, and on demand.
+- `publish.sh`: sync R2 → take `incoming/*.apk` → `fdroid update` → sync back to R2.
+- `.github/workflows/publish.yml`: runs `publish.sh` every 3 hours, on push, and on demand.
 
 ## Add an app
 
-1. Make its release workflow attach a **signed** APK to each GitHub release.
-2. Add a line to `apps.txt` and a `metadata/<package>.yml`.
-3. Optional: trigger right after a release with
-   `gh workflow run publish.yml -R aaronroquefonseca/fdroid`.
+1. Add `metadata/<package>.yml` (+ optional `metadata/<package>/en-US/` icon, screenshots).
+2. Give the app repo the `R2_*` secrets and make its release workflow upload the
+   **signed** APK with a unique name, e.g.
+   `aws s3 cp app.apk s3://$R2_BUCKET/incoming/<package>-<version>.apk --endpoint-url https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com`.
+3. It goes live on the next run, or now with `gh workflow run publish.yml -R aaronroquefonseca/fdroid`.
 
 ## Secrets
 
@@ -21,7 +22,6 @@ Source for https://f-droid.aaronroque.biz (index at `/repo`).
 |---|---|
 | `FDROID_KEYSTORE_B64` | base64 of the repo signing `keystore.p12` |
 | `FDROID_KEYSTORE_PASS` | its password |
-| `APPS_READ_TOKEN` | fine-grained PAT, Contents: read on the app repos |
 | `R2_ACCOUNT_ID`, `R2_BUCKET` | Cloudflare account ID, bucket name |
 | `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` | R2 API token (Object Read & Write, this bucket) |
 

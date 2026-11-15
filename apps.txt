@@ -1,3 +1,0 @@
-# GitHub repos whose releases publish signed APKs.
-# One per line: owner/repo [apk-glob]. Default glob: *.apk
-aaronroquefonseca/MyWhisperMobile *-release.apk

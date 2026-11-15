@@ -1,10 +1,9 @@
 name: publish
 
-# Daily, manual, or triggered by an app's release workflow via
-# `gh workflow run publish.yml -R aaronroquefonseca/fdroid`.
+# Picks up APKs that app release workflows upload to R2 incoming/.
 on:
   schedule:
-    - cron: "17 6 * * *"
+    - cron: "17 */3 * * *"
   workflow_dispatch:
   push:
     branches: [main]
@@ -33,7 +32,6 @@ jobs:
       - name: Publish
         env:
           FDROID_KEYSTORE_PASS: ${{ secrets.FDROID_KEYSTORE_PASS }}
-          GH_TOKEN: ${{ secrets.APPS_READ_TOKEN }}
           R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
           R2_BUCKET: ${{ secrets.R2_BUCKET }}
           AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
