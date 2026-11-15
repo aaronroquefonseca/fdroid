@@ -1,0 +1,19 @@
+# fdroidserver config for https://f-droid.aaronroque.biz/repo
+# Secrets come from env (CI secrets or local export); never commit them.
+repo_url: https://f-droid.aaronroque.biz/repo
+repo_name: Aaron Roque's F-Droid repo
+repo_icon: icon.png
+repo_description: >-
+  Apps by Aaron Roque, signed and published straight from their release builds.
+
+archive_older: 3
+archive_url: https://f-droid.aaronroque.biz/archive
+archive_name: Aaron Roque's F-Droid archive
+archive_icon: icon.png
+archive_description: Older versions of apps from Aaron Roque's F-Droid repo.
+
+repo_keyalias: repokey
+keystore: keystore.p12
+keystorepass: {env: FDROID_KEYSTORE_PASS}
+keypass: {env: FDROID_KEYSTORE_PASS}
+keydname: CN=f-droid.aaronroque.biz, O=Aaron Roque

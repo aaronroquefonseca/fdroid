@@ -1,0 +1,8 @@
+.venv/
+repo/
+archive/
+tmp/
+keystore.p12
+*.keystore
+*.jks
+config.yml.local

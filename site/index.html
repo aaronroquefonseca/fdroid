@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aaron Roque F-Droid</title>
+<meta name="description" content="F-Droid repository with apps by Aaron Roque. Add it to F-Droid to install and auto-update them.">
+<link rel="icon" href="icon.png">
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #ffffff; --text: #14171c; --muted: #5d6573;
+    --line: #e2e5ea; --accent: #1f7a4d; --accent-text: #ffffff; --code: #eef1f4;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0f1114; --card: #171a1f; --text: #e8eaee; --muted: #9aa2ae;
+            --line: #2a2f37; --accent: #3fb47a; --accent-text: #0b1a12; --code: #20242b; }
+  }
+  * { box-sizing: border-box; }
+  a { color: var(--accent); }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 48px 16px 64px; }
+  header { display: flex; gap: 16px; align-items: center; margin-bottom: 32px; }
+  header img { width: 64px; height: 64px; border-radius: 16px; }
+  h1 { font-size: 1.6rem; margin: 0; line-height: 1.2; }
+  h2 { font-size: 1.1rem; margin: 0 0 12px; }
+  p { margin: 0 0 12px; }
+  .muted { color: var(--muted); }
+  section { background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+            padding: 20px; margin-bottom: 20px; }
+  .add { display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: center; }
+  @media (max-width: 560px) { .add { grid-template-columns: 1fr; } #qr { justify-self: center; } }
+  .btn { display: inline-block; background: var(--accent); color: var(--accent-text);
+         padding: 10px 18px; border-radius: 10px; font-weight: 600; text-decoration: none; }
+  #qr { background: #fff; padding: 10px; border-radius: 10px; line-height: 0; }
+  ol { padding-left: 20px; margin: 0; }
+  li { margin-bottom: 8px; }
+  code { background: var(--code); padding: 2px 6px; border-radius: 6px;
+         font: 0.9em ui-monospace, SFMono-Regular, Menlo, monospace; overflow-wrap: anywhere; }
+  .fp { display: block; padding: 10px 12px; margin-top: 6px; letter-spacing: 0.02em; }
+  .app { display: grid; grid-template-columns: 56px 1fr; gap: 14px; padding: 14px 0;
+         border-top: 1px solid var(--line); }
+  .app:first-of-type { border-top: 0; padding-top: 0; }
+  .app img { width: 56px; height: 56px; border-radius: 12px; }
+  .app h3 { margin: 0; font-size: 1.05rem; }
+  .app .meta { font-size: 0.85rem; color: var(--muted); }
+  .app a { color: var(--accent); }
+  footer { text-align: center; font-size: 0.85rem; color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <img src="icon.png" alt="">
+    <div>
+      <h1 id="repo-name">Aaron Roque's F-Droid repo</h1>
+      <p class="muted" id="repo-desc">Apps by Aaron Roque, signed and published straight from their release builds.</p>
+    </div>
+  </header>
+
+  <section class="add">
+    <div>
+      <h2>Add this repo</h2>
+      <p>On your Android phone with <a href="https://f-droid.org">F-Droid</a> installed, tap the button. On a computer, scan the QR code with your phone.</p>
+      <a class="btn" id="add-link" href="#">Add to F-Droid</a>
+    </div>
+    <div id="qr" aria-label="QR code with the repo link"></div>
+  </section>
+
+  <section>
+    <h2>Add it by hand</h2>
+    <ol>
+      <li>Open F-Droid, then go to <b>Settings → Repositories</b> and tap <b>+</b>.</li>
+      <li>Enter the address <code>https://f-droid.aaronroque.biz</code></li>
+      <li>Check that the fingerprint matches:
+        <code class="fp" id="fp"></code></li>
+    </ol>
+    <p class="muted" style="margin-top:12px">Works with F-Droid, Droid-ify, Neo Store and other F-Droid clients.</p>
+  </section>
+
+  <section>
+    <h2>Apps</h2>
+    <div id="apps"><p class="muted">Loading…</p></div>
+  </section>
+
+  <footer id="updated"></footer>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+  const FINGERPRINT = "fdf84ae478bd0798ef4566fa91a2a17dd7c95d5146425aec2af3449b10ccc3ae";
+  const REPO = "https://f-droid.aaronroque.biz/repo";
+  const addUrl = `${REPO}?fingerprint=${FINGERPRINT}`;
+
+  document.getElementById("add-link").href = addUrl.replace(/^https:/, "fdroidrepos:");
+  document.getElementById("fp").textContent = FINGERPRINT.toUpperCase().match(/.{2}/g).join(" ");
+  try { new QRCode(document.getElementById("qr"), { text: addUrl, width: 160, height: 160 }); }
+  catch { document.getElementById("qr").remove(); }
+
+  const en = (v) => v && (v["en-US"] ?? Object.values(v)[0]);
+  const el = (tag, props = {}, ...kids) => {
+    const n = Object.assign(document.createElement(tag), props);
+    n.append(...kids);
+    return n;
+  };
+
+  fetch("index-v2.json", { cache: "no-cache" })
+    .then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(({ repo, packages }) => {
+      const list = document.getElementById("apps");
+      list.replaceChildren();
+      const entries = Object.entries(packages).sort(([, a], [, b]) =>
+        (en(a.metadata.name) || "").localeCompare(en(b.metadata.name) || ""));
+      if (!entries.length) list.append(el("p", { className: "muted", textContent: "No apps yet." }));
+      for (const [id, pkg] of entries) {
+        const m = pkg.metadata;
+        const latest = Object.values(pkg.versions).sort((a, b) => b.manifest.versionCode - a.manifest.versionCode)[0];
+        const icon = en(m.icon);
+        const meta = el("div", { className: "meta" },
+          latest ? `Version ${latest.manifest.versionName} · ${new Date(latest.added).toLocaleDateString()}` : id);
+        const links = el("div", { className: "meta" });
+        if (latest) links.append(el("a", { href: latest.file.name.replace(/^\//, ""), textContent: "Download APK" }));
+        if (m.sourceCode) links.append(" · ", el("a", { href: m.sourceCode, textContent: "Source" }));
+        list.append(el("div", { className: "app" },
+          el("img", { src: icon ? icon.name.replace(/^\//, "") : "icon.png", alt: "" }),
+          el("div", {},
+            el("h3", { textContent: en(m.name) || id }),
+            el("p", { textContent: en(m.summary) || "", style: "margin:2px 0" }),
+            meta, links)));
+      }
+      document.getElementById("updated").textContent = `Index updated ${new Date(repo.timestamp).toLocaleString()}`;
+    })
+    .catch(() => {
+      document.getElementById("apps").replaceChildren(
+        el("p", { className: "muted", textContent: "Could not load the app list. Add the repo in F-Droid to browse it." }));
+    });
+</script>
+</body>
+</html>
