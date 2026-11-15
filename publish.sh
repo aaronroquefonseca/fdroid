@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Move signed APKs from R2 incoming/ into the repo, rebuild the F-Droid index, push to R2.
-# Apps publish by uploading a signed APK to s3://$R2_BUCKET/incoming/ from their release workflow.
+# Move signed APKs from R2 incoming/ into the repo, apply listings from R2 listings/,
+# rebuild the F-Droid index, push to R2. App repos write both from their workflows.
 # Env: R2_ACCOUNT_ID R2_BUCKET AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY FDROID_KEYSTORE_PASS
 # Needs: fdroid, aws, keystore.p12 in this directory. DRY_RUN=1 skips the upload.
 set -euo pipefail
@@ -19,7 +19,19 @@ rm -rf incoming; mkdir -p repo archive incoming
 "${S3[@]}" sync --only-show-errors "$BUCKET/archive" archive
 "${S3[@]}" sync --only-show-errors --exclude '*' --include '*.apk' "$BUCKET/incoming" incoming
 
+# Store listings pushed by each app repo (fastlane layout: <locale>/title.txt,
+# full_description.txt, images/...). They replace what fdroid copied before,
+# so removed screenshots disappear too.
 shopt -s nullglob
+rm -rf listings; mkdir -p listings
+"${S3[@]}" sync --only-show-errors "$BUCKET/listings" listings
+for dir in listings/*/; do
+  pkg=$(basename "$dir")
+  test -f "metadata/$pkg.yml" || { echo "skip listing $pkg: no metadata/$pkg.yml" >&2; continue; }
+  rm -rf "metadata/$pkg" "repo/$pkg"
+  cp -r "$dir" "metadata/$pkg"
+done
+
 new=(incoming/*.apk)
 for apk in "${new[@]}"; do cp "$apk" repo/; echo "adding $(basename "$apk")"; done
 

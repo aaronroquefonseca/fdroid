@@ -6,3 +6,7 @@ keystore.p12
 *.keystore
 *.jks
 config.yml.local
+listings/
+incoming/
+# copied from R2 listings/ by publish.sh
+metadata/*/

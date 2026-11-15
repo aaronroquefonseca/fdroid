@@ -3,14 +3,17 @@
 Source for https://f-droid.aaronroque.biz (index at `/repo`).
 
 - R2 `incoming/`: apps drop signed APKs here; publish moves them into `repo/`.
-- `metadata/<package>.yml` + `metadata/<package>/en-US/`: store listing, icon, screenshots.
+- `metadata/<package>.yml`: per-app fields (categories, links). Listing text, icon and
+  screenshots come from R2 `listings/<package>/` (fastlane layout), pushed by the app repo.
 - `site/index.html`: homepage, served at `/repo/index.html`.
 - `publish.sh`: sync R2 → take `incoming/*.apk` → `fdroid update` → sync back to R2.
 - `.github/workflows/publish.yml`: runs `publish.sh` every 3 hours, on push, and on demand.
 
 ## Add an app
 
-1. Add `metadata/<package>.yml` (+ optional `metadata/<package>/en-US/` icon, screenshots).
+1. Add `metadata/<package>.yml`. In the app repo, keep the listing in
+   `fastlane/metadata/android/<locale>/` and sync it to `s3://$R2_BUCKET/listings/<package>/`
+   (see MyWhisperMobile's `fdroid-listing.yml`).
 2. Give the app repo the `R2_*` secrets and make its release workflow upload the
    **signed** APK with a unique name, e.g.
    `aws s3 cp app.apk s3://$R2_BUCKET/incoming/<package>-<version>.apk --endpoint-url https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com`.

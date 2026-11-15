@@ -1,16 +1,8 @@
+# Name, summary, description, icon and screenshots come from the app repo
+# (fastlane/metadata/android), pushed to R2 listings/ by its workflows.
 Categories:
   - Writing
 AuthorName: Aaron Roque
 SourceCode: https://github.com/aaronroquefonseca/MyWhisperMobile
 IssueTracker: https://github.com/aaronroquefonseca/MyWhisperMobile/issues
-
-Name: MyWhisper
-Summary: Voice typing for any app, powered by the MyWhisper engine
-Description: |-
-  Dictate into other apps using a floating microphone button or the MyWhisper
-  input method.
-
-  * Floating button appears over any focused text field: tap to dictate, tap
-    the check to insert, or press and hold to talk.
-  * Server or on-device speech recognition.
-  * Optional text cleanup, custom dictionary, and transcript library.
+Changelog: https://github.com/aaronroquefonseca/MyWhisperMobile/blob/main/CHANGELOG.md
