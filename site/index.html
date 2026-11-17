@@ -45,6 +45,15 @@
   .app h3 { margin: 0; font-size: 1.05rem; }
   .app .meta { font-size: 0.85rem; color: var(--muted); }
   .app a { color: var(--accent); }
+  .tag { font-size: 0.75rem; font-weight: 600; padding: 1px 6px; border-radius: 6px;
+         background: var(--code); color: var(--muted); }
+  details { margin-top: 6px; font-size: 0.85rem; }
+  summary { cursor: pointer; color: var(--muted); }
+  .versions { list-style: none; padding: 0; margin: 6px 0 0; }
+  .versions li { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline;
+                 padding: 6px 0; margin: 0; border-top: 1px solid var(--line); }
+  .versions .when { color: var(--muted); }
+  .versions a { margin-left: auto; }
   footer { text-align: center; font-size: 0.85rem; color: var(--muted); }
 </style>
 </head>
@@ -71,7 +80,7 @@
     <h2>Add it by hand</h2>
     <ol>
       <li>Open F-Droid, then go to <b>Settings → Repositories</b> and tap <b>+</b>.</li>
-      <li>Enter the address <code>https://f-droid.aaronroque.biz</code></li>
+      <li>Enter the address <code>https://f-droid.aaronroque.biz/repo</code></li>
       <li>Check that the fingerprint matches:
         <code class="fp" id="fp"></code></li>
     </ol>
@@ -114,19 +123,32 @@
       if (!entries.length) list.append(el("p", { className: "muted", textContent: "No apps yet." }));
       for (const [id, pkg] of entries) {
         const m = pkg.metadata;
-        const latest = Object.values(pkg.versions).sort((a, b) => b.manifest.versionCode - a.manifest.versionCode)[0];
+        const versions = Object.values(pkg.versions).sort((a, b) => b.manifest.versionCode - a.manifest.versionCode);
+        // fdroid drops the Beta channel from nightlies older than the current stable; the "-nightly.N" name keeps them labelled.
+        const isBeta = (v) => (v.releaseChannels || []).length > 0 || v.manifest.versionName.includes("-");
+        const apk = (v) => v.file.name.replace(/^\//, "");
+        const date = (v) => new Date(v.added).toLocaleDateString();
+        // Headline is the newest stable; nightlies only show up as Beta in the list below.
+        const latest = versions.find((v) => !isBeta(v)) || versions[0];
         const icon = en(m.icon);
         const meta = el("div", { className: "meta" },
-          latest ? `Version ${latest.manifest.versionName} · ${new Date(latest.added).toLocaleDateString()}` : id);
+          latest ? `Version ${latest.manifest.versionName} · ${date(latest)}` : id);
         const links = el("div", { className: "meta" });
-        if (latest) links.append(el("a", { href: latest.file.name.replace(/^\//, ""), textContent: "Download APK" }));
+        if (latest) links.append(el("a", { href: apk(latest), textContent: "Download APK" }));
         if (m.sourceCode) links.append(" · ", el("a", { href: m.sourceCode, textContent: "Source" }));
+        const all = el("details", {},
+          el("summary", { textContent: `All versions (${versions.length})` }),
+          el("ul", { className: "versions" }, ...versions.map((v) => el("li", {},
+            el("span", { textContent: v.manifest.versionName }),
+            ...(isBeta(v) ? [el("span", { className: "tag", textContent: "Beta" })] : []),
+            el("span", { className: "when", textContent: date(v) }),
+            el("a", { href: apk(v), textContent: "Download" })))));
         list.append(el("div", { className: "app" },
           el("img", { src: icon ? icon.name.replace(/^\//, "") : "icon.png", alt: "" }),
           el("div", {},
             el("h3", { textContent: en(m.name) || id }),
             el("p", { textContent: en(m.summary) || "", style: "margin:2px 0" }),
-            meta, links)));
+            meta, links, versions.length > 1 ? all : "")));
       }
       document.getElementById("updated").textContent = `Index updated ${new Date(repo.timestamp).toLocaleString()}`;
     })
