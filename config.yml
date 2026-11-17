@@ -6,7 +6,7 @@ repo_icon: icon.png
 repo_description: >-
   Apps by Aaron Roque, signed and published straight from their release builds.
 
-archive_older: 3
+archive_older: 5
 archive_url: https://f-droid.aaronroque.biz/archive
 archive_name: Aaron Roque's F-Droid archive
 archive_icon: icon.png

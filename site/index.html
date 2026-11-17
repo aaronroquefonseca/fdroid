@@ -113,9 +113,11 @@
     return n;
   };
 
-  fetch("index-v2.json", { cache: "no-cache" })
-    .then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
-    .then(({ repo, packages }) => {
+  const getIndex = (url) => fetch(url, { cache: "no-cache" })
+    .then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); });
+  // Older versions live in the archive repo; the list still works without it.
+  Promise.all([getIndex("index-v2.json"), getIndex("../archive/index-v2.json").catch(() => ({ packages: {} }))])
+    .then(([{ repo, packages }, archive]) => {
       const list = document.getElementById("apps");
       list.replaceChildren();
       const entries = Object.entries(packages).sort(([, a], [, b]) =>
@@ -123,10 +125,12 @@
       if (!entries.length) list.append(el("p", { className: "muted", textContent: "No apps yet." }));
       for (const [id, pkg] of entries) {
         const m = pkg.metadata;
-        const versions = Object.values(pkg.versions).sort((a, b) => b.manifest.versionCode - a.manifest.versionCode);
+        const archived = Object.values(archive.packages[id]?.versions || {}).map((v) => ({ ...v, archived: true }));
+        const versions = [...Object.values(pkg.versions), ...archived]
+          .sort((a, b) => b.manifest.versionCode - a.manifest.versionCode);
         // fdroid drops the Beta channel from nightlies older than the current stable; the "-nightly.N" name keeps them labelled.
         const isBeta = (v) => (v.releaseChannels || []).length > 0 || v.manifest.versionName.includes("-");
-        const apk = (v) => v.file.name.replace(/^\//, "");
+        const apk = (v) => (v.archived ? "../archive/" : "") + v.file.name.replace(/^\//, "");
         const date = (v) => new Date(v.added).toLocaleDateString();
         // Headline is the newest stable; nightlies only show up as Beta in the list below.
         const latest = versions.find((v) => !isBeta(v)) || versions[0];
