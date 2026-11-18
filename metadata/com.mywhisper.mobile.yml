@@ -2,6 +2,14 @@
 # (fastlane/metadata/android), pushed to R2 listings/ by its workflows.
 Categories:
   - Writing
+  - System
+AntiFeatures:
+  NonFreeNet:
+    en-US: >-
+      Optional, off until you pick one: speech recognition and text cleanup
+      can use cloud providers (OpenAI, Groq, Deepgram, Mistral, Google Gemini,
+      Anthropic, OpenRouter). Self-hosted servers and on-device models need
+      none of them.
 AuthorName: Aaron Roque
 SourceCode: https://github.com/aaronroquefonseca/MyWhisperMobile
 IssueTracker: https://github.com/aaronroquefonseca/MyWhisperMobile/issues
