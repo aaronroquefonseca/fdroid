@@ -2,14 +2,23 @@
 # (fastlane/metadata/android), pushed to R2 listings/ by its workflows.
 Categories:
   - Writing
+  - Keyboard & IME
   - System
 AntiFeatures:
   NonFreeNet:
     en-US: >-
       Optional, off until you pick one: speech recognition and text cleanup
       can use cloud providers (OpenAI, Groq, Deepgram, Mistral, Google Gemini,
-      Anthropic, OpenRouter). Self-hosted servers and on-device models need
-      none of them.
+      Anthropic, OpenRouter). Optional on-device models download from
+      Hugging Face, and their runtime (built from free source) from GitHub
+      Releases, only when you ask for them. Self-hosted servers need none of
+      these.
+  NonFreeAssets:
+    en-US: >-
+      Optional: the Gemma 3 1B on-device cleanup model, downloaded only if
+      you pick it, is under Google's Gemma Terms of Use, not a free license.
+      The other on-device models are MIT (Whisper, Parakeet) or Apache-2.0
+      (Gemma 4).
 AuthorName: Aaron Roque
 SourceCode: https://github.com/aaronroquefonseca/MyWhisperMobile
 IssueTracker: https://github.com/aaronroquefonseca/MyWhisperMobile/issues
