@@ -15,10 +15,10 @@ AntiFeatures:
       these.
   NonFreeAssets:
     en-US: >-
-      Optional: the Gemma 3 1B on-device cleanup model, downloaded only if
-      you pick it, is under Google's Gemma Terms of Use, not a free license.
-      The other on-device models are MIT (Whisper, Parakeet) or Apache-2.0
-      (Gemma 4).
+      Only one optional model: Gemma 3 1B, downloaded only if you pick it, is
+      under Google's Gemma Terms of Use, not a free license. It stays because
+      it runs best on low-end phones. All other on-device models are MIT or
+      Apache-2.0.
 AuthorName: Aaron Roque
 SourceCode: https://github.com/aaronroquefonseca/MyWhisperMobile
 IssueTracker: https://github.com/aaronroquefonseca/MyWhisperMobile/issues
